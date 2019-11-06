@@ -1,70 +1,133 @@
 import java.util.*;
+import java.util.Arrays;
 
-
-
-
-
-/* Methods are all done.
-  Just need to finish the logic in main method
-
-  1) Fix the hidden word output in main method
-  2) Check if user guess is at any of array locations in secret Word
-  3) Guessremaining
-
-*/
-
-
-
-
-// main class
-public class Hangman {
-    // private static final boolean testingMode = true;
-
-    // you will take care of user interaction under main method
+public class Main {
     public static void main(String[] args) {
       Scanner sc = new Scanner(System.in);
       char diffLevel;
       String secretWord;
+      String userGuess;
+      String userSpaces;
+      String userSolve;
+      int spaces;
       String userGuessedWord;
-      int secretLength;
       int guessesAllowed;
+      int[] userPositions;
+      boolean isGuess = false;
 
-
+while (true) {
       while(true) {
         System.out.println("Enter your difficulty: Easy (e), Intermediate (i), or Hard (h)");
         diffLevel = sc.next().charAt(0);
         if (diffLevel == 'e') {
           secretWord = "";
-          whiteSpaces = 4;
+          spaces = 4;
           guessesAllowed = 15;
           break;
         } else if (diffLevel == 'i') {
           secretWord = "";
-          whiteSpaces = 3;
+          spaces = 3;
           guessesAllowed = 12;
           break;
         } else if (diffLevel == 'h') {
           secretWord = "";
-          whiteSpaces = 2;
+          spaces = 2;
           guessesAllowed = 10;
           break;
         } else {
           System.out.println("Invalid difficulty. Try again...");
         }
       }
+
+
+      secretWord = "secret";
+      char[] hiddenWord = new char[secretWord.length()];
+      for (int index = 0; index < secretWord.length(); index++) {
+        hiddenWord[index] = '-';
+      }
+      System.out.print("The word is ");
+      for (int j = 0; j < hiddenWord.length; j++) {
+          System.out.print(hiddenWord[j]);
+      }
+      while(guessesAllowed > 0) {
       while (true) {
-        secretWord = "Secret";
-        for (int j = 0; j > secretWord.length(); j++) {
-          secretLength =+ "-";
-        }
-        System.out.println(secretLength);
-        System.out.println("Please enter the letter you want to guess: ")
-        if (!Character.isLetter(userGuess.charAt(0))) {
-          System.out.println("Invalid input. Try again")
-        } else {
+        try {
+          System.out.print("\nPlease enter the letter you want to guess: ");
+          Scanner scan2 = new Scanner(System.in);
+          userGuess = scan2.nextLine();
+          System.out.println(userGuess);
+          if (userGuess.toLowerCase().equals("solve")) {
+            System.out.print("\nPlease solve the word: ");
+            userSolve = sc.next();
+            if (userSolve.toLowerCase().equals(secretWord)) {
+              System.out.println("You win!");
+              System.out.println("You have guessed the word! Congratulations!");
+              System.out.print("\nWould you like to play again? Yes(y) or No(n)");
+              String continuePlay;
+              continuePlay = sc.next();
+              if (continuePlay.toLowerCase().charAt(0) == 'y') {
+                  guessesAllowed = 0;
+                break;
+              }
+             else if (continuePlay.toLowerCase().charAt(0) == 'n') {
+              System.exit(0);
+            } else {
+              System.out.println("\nInvalid Input.");
+              break;
+            }
+            } else {
+                System.out.println("That is not the secret word.");
+                guessesAllowed -= 1;
+                break;
+            }
+          }
+          if (!Character.isLetter(userGuess.charAt(0))) {
+            System.out.println("\nInvalid input. Try againn");
+            break;
+          }
+          System.out.print("\nPlease enter the spaces you want to check (seperated by spaces): ");
+          Scanner scan = new Scanner(System.in);
+          userSpaces = scan.nextLine();
+        } catch (Exception e) {
+          System.out.println("Error - Please enter a valid input");
           break;
         }
+        if (!validPosition(userSpaces, spaces)) {
+          System.out.println("Your input is not valid. Try again");
+          break;
+        }
+        userPositions = getPosition(userSpaces, spaces);
+        for (int i = 0; i < secretWord.length(); i++) {
+          for (int j = 0; j < userPositions.length; j++) {
+            if (userGuess.toLowerCase().charAt(0) == secretWord.charAt(userPositions[j])) {
+              hiddenWord[userPositions[j]] = secretWord.charAt(userPositions[j]);
+              isGuess = true;
+            }
+          }
+        }
+        if (isGuess) {
+          System.out.println("Your guess is in the word!");
+          isGuess = false;
+          System.out.println(hiddenWord);
+          System.out.println(secretWord);
+          if (secretWord.equals(new String(hiddenWord))) {
+              System.out.println("You win!!!!!");
+              System.exit(0);
+          }
+          System.out.println("The updated word is: " + hiddenWord);
+        } else {
+          System.out.println("Your letter was not found in the space you provided.");
+          guessesAllowed -= 1;
+          break;
+        }
+
+
       }
+      if (guessesAllowed != 0) {
+        System.out.println("Guesses Remaining: " + guessesAllowed);
+      }
+}
+}
 
 
 
@@ -72,49 +135,22 @@ public class Hangman {
     }
 
 
-
-
-    // this method validate if a string can be parsed to an integer
-    // this method takes 1 parameter and returns a boolean:
-    //      str - a string
-    // when str can be parsed to an integer without any needs of modification
-    // return true; otherwise false
     public static boolean isInt(String str) {
         try {
           int result = Integer.parseInt(str);
           return true;
         } catch (NumberFormatException e) {
-          System.out.println("Error");
           return false;
         }
     }
 
 
-    // this method validates the positions given by users as a string
-    // this method takes 2 parameters and returns a boolean:
-    //      positionStr - a string given by a user
-    //                      representing "spaces the user want to check";
-    //      spaceAllowed - an integer representing the allowed spaces at the current
-    //                      difficulty level
-    // when the given positionStr can be split and parsed to exactly the number of
-    // spaceAllowed integers, return true; otherwise false
-    // NOTE: The only allowed delimiter for positionStr is white space
-    // e.g.1, positionStr: "0 1 5 7"
-    //        spaceAllowed: 3
-    //        return: false
-    // e.g.2, positionStr: "0 1 5 a "
-    //        spaceAllowed: 4
-    //        return: false
-    // e.g.3, positionStr: "0 100 4 21 "
-    //        spaceAllowed: 4
-    //        return: true
-    // e.g.4, positionStr: "0, 100, 4, 21 "
-    //        spaceAllowed: 4
-    //        return: false
     public static boolean validPosition(String positionStr, int spaceAllowed) {
       String[] arr = new String[spaceAllowed];
       arr = positionStr.split("\\s+");
-      if (arr.length > spaceAllowed) {
+      System.out.println(Arrays.toString(arr));
+      System.out.println(arr.length + " " + spaceAllowed);
+      if (arr.length != spaceAllowed) {
         return false;
       }
       for (int j = 0; j < arr.length; j++) {
@@ -123,27 +159,8 @@ public class Hangman {
         }
       }
       return true;
-      //System.out.println(Arrays.toString(arr));
-      //int firstOne = Integer.parseInt(arr[0]);
-      //System.out.println(firstOne);
     }
 
-
-    // this method converts the validated positions from a string to an int array
-    // this method takes 2 parameters and returns an int array
-    //      positionStr - a string representing validated positions provided by a user
-    //      spaceAllowed - an integer representing the allowed spaces at the current
-    //                      difficulty level
-    // NOTE 1: You should assume the validity of positionStr -
-    //      only composed of integers and white spaces
-    //      the numbers of integers are the same as spaceAllowed
-    // NOTE 2: White spaces serve as delimiters
-    // e.g.1, positionStr: "0 100 4 21 "
-    //        spaceAllowed: 4
-    //        return: {0, 100, 4, 21}
-    // e.g.2, positionStr: "0 1          3      4    "
-    //        spaceAllowed: 4
-    //        return: {0, 1, 3, 4}
     public static int[] getPosition(String positionStr, int spaceAllowed) {
         String[] arr = positionStr.split("\\s+");
         int[] intArr = new int[arr.length];
@@ -153,5 +170,5 @@ public class Hangman {
         return intArr;
     }
 
-    // you are welcome to add more methods if you want
+
 }
