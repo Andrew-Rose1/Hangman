@@ -40,9 +40,7 @@ public class Hangman {
         }
       }
 
-      // this art of the main mtehod continues to run until there are no
-      // remaining guesses
-      while(guessesAllowed > 0) {
+
         // generates the random word
         secretWord = RandomWord.newWord();
         char[] hiddenWord = new char[secretWord.length()];
@@ -54,6 +52,10 @@ public class Hangman {
           System.out.print(hiddenWord[j]);
         }
 
+
+        // this art of the main mtehod continues to run until there are no
+        // remaining guesses
+        while(guessesAllowed > 0) {
         // Continues to ask the user for an input for different needed variables
         // Includes the option of the user wants to solve the word
         while (true) {
